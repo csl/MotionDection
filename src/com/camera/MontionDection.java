@@ -11,32 +11,37 @@ import android.hardware.Camera.PreviewCallback;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 public class MontionDection extends Activity
 {
 	private static final String TAG = "MontionDection";
 	
-	static int DELAY_TAKEPICTURE = 10000;
+	static int DELAY_TAKEPICTURE = 5000;
 
 	//camera use
 	private static SurfaceView preview = null;
-	private static SurfaceHolder previewHolder = null;
+	private static
+	SurfaceHolder previewHolder = null;
 	private static Camera camera = null;
 	private static boolean inPreview = false;
 	private static long mReferenceTime = 0;
 	
 	private static RgbMD detector = null;
 	private static volatile AtomicBoolean processing = new AtomicBoolean(false);
+	public static MontionDection my;
 
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
+		my = this;
 		preview = (SurfaceView)findViewById(R.id.preview);
 		previewHolder = preview.getHolder();
 		previewHolder.addCallback(surfaceCallback);
@@ -178,15 +183,16 @@ public class MontionDection extends Activity
 						
 						mReferenceTime = now;
 						
-						Bitmap original = null;						
-						if (org!=null) 
-							original = ImageProcessing.rgbToBitmap(org, width, height);
+						Bitmap bitmap = null;						
+					    //if (org!=null) 
+							//original = ImageProcessing.rgbToBitmap(org, width, height);
+						bitmap = ImageProcessing.rgbToBitmap(org, width, height);
 						
-						Log.i(TAG,"Saving.."  + original);
+						Log.i(TAG,"Saving.."  + bitmap);
 						Looper.prepare();
-						
+		
 						//save picture
-						new SaveTask().execute(original);
+						new SaveTask().execute(bitmap);
 					} else {
 						Log.i(TAG, "Not taking picture because not enough time has passed since the creation of the Surface");
 					}
@@ -215,6 +221,8 @@ public class MontionDection extends Activity
 		
 		private void save(String name, Bitmap bitmap) 
 		{
+		    
+		    
 			File photo=new File(Environment.getExternalStorageDirectory(), name+".jpg");
 			if (photo.exists()) photo.delete();
 
@@ -226,5 +234,6 @@ public class MontionDection extends Activity
 				Log.e("PictureDemo", "Exception in photoCallback", e);
 			}
 		}
+
 	}
 }
