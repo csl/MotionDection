@@ -32,7 +32,7 @@ public class MontionDection extends Activity
 {
 	private static final String TAG = "MontionDection";
 	
-	static int DELAY_TAKEPICTURE = 3000;
+	static int DELAY_TAKEPICTURE = 10000;
 
 	//camera use
 	private static SurfaceView preview = null;
@@ -182,8 +182,6 @@ public class MontionDection extends Activity
 	              });
 	          
 	              alert.show();      
-	        	  
-	        		
 	        	
 		          return true;
 	        case 1:
@@ -229,7 +227,7 @@ public class MontionDection extends Activity
 			if (stop == 1)
 			{
 				camera.stopPreview();
-				SystemClock.sleep(1000);
+				SystemClock.sleep(2300);
 				camera.startPreview();
 				stop = 0;
 			}
