@@ -14,7 +14,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
@@ -23,7 +26,7 @@ public class MontionDection extends Activity
 {
 	private static final String TAG = "MontionDection";
 	
-	static int DELAY_TAKEPICTURE = 5000;
+	static int DELAY_TAKEPICTURE = 3000;
 
 	//camera use
 	private static SurfaceView preview = null;
@@ -36,11 +39,13 @@ public class MontionDection extends Activity
 	private static RgbMD detector = null;
 	private static volatile AtomicBoolean processing = new AtomicBoolean(false);
 	public static MontionDection my;
+	public static int stop=0;
 
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		stop=0;
 		my = this;
 		preview = (SurfaceView)findViewById(R.id.preview);
 		previewHolder = preview.getHolder();
@@ -50,6 +55,30 @@ public class MontionDection extends Activity
 		//using rgb
 		detector = new RgbMD();
 	}
+	
+	public boolean onCreateOptionsMenu(Menu menu)
+	  {
+	    super.onCreateOptionsMenu(menu);
+	    
+	    menu.add(0 , 1, 0 , "Exit")
+	    .setAlphabeticShortcut('S');
+	    return true;
+	  }
+
+	  @Override
+	  public boolean onOptionsItemSelected(MenuItem item)
+	  {
+	    switch (item.getItemId())
+	      {
+	        case 1:
+	          //locationManager.removeUpdates(locationListener);
+	          android.os.Process.killProcess(android.os.Process.myPid());
+	          finish();
+	          return true;
+	      }
+	    
+	  return true ;
+	  }	
 
     @Override
     public void onPause() {
@@ -70,12 +99,21 @@ public class MontionDection extends Activity
 	}
 
 	private PreviewCallback previewCallback = new PreviewCallback() 
-	{
+	{ 
 		@Override
-		public void onPreviewFrame(byte[] data, Camera cam) {
+		public void onPreviewFrame(byte[] data, Camera cam) 
+		{
 			if (data == null) return;
 			Camera.Size size = cam.getParameters().getPreviewSize();
 			if (size == null) return;
+			
+			if (stop == 1)
+			{
+				camera.stopPreview();
+				SystemClock.sleep(1000);
+				camera.startPreview();
+				stop = 0;
+			}
 
 		    DetectionThread thread = new DetectionThread(data,size.width,size.height);
 		    thread.start();
@@ -111,6 +149,8 @@ public class MontionDection extends Activity
 			camera.startPreview();
 			inPreview=true;
 		}
+		
+		
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
 			// Ignore
@@ -180,7 +220,7 @@ public class MontionDection extends Activity
 					// to reboot.
 					long now = System.currentTimeMillis();
 					if (now > (mReferenceTime + DELAY_TAKEPICTURE)) {
-						
+						stop = 1;
 						mReferenceTime = now;
 						
 						Bitmap bitmap = null;						
@@ -221,8 +261,7 @@ public class MontionDection extends Activity
 		
 		private void save(String name, Bitmap bitmap) 
 		{
-		    
-		    
+   
 			File photo=new File(Environment.getExternalStorageDirectory(), name+".jpg");
 			if (photo.exists()) photo.delete();
 

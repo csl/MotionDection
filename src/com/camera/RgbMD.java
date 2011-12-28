@@ -8,8 +8,8 @@ public class RgbMD
 	private static final String TAG = "RgbMD";
 
 	//Specific settings
-	private static final int mPixelThreshold = 50; //Difference in pixel (RGB)
-	private static final int mThreshold = 10000; //Number of different pixels (RGB)
+	private static final int mPixelThreshold = 30; //Difference in pixel (RGB)
+	private static final int mThreshold = 5000; //Number of different pixels (RGB)
 
 	private static int[] mPrevious = null;
 	private static int mPreviousWidth = 0;
