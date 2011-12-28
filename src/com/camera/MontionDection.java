@@ -4,6 +4,8 @@ import java.io.File;import java.io.FileOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
@@ -20,6 +22,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MontionDection extends Activity
@@ -41,6 +47,11 @@ public class MontionDection extends Activity
 	public static MontionDection my;
 	public static int stop=0;
 
+	private TextView trgbthr, tnumthr;
+	private SeekBar rgbthrbar, numthrbar;
+	private TextView trgbthrres, tnumthrres;
+	public int h, w;
+	
 	public void onCreate(Bundle savedInstanceState) 
 	{
 		super.onCreate(savedInstanceState);
@@ -60,8 +71,8 @@ public class MontionDection extends Activity
 	  {
 	    super.onCreateOptionsMenu(menu);
 	    
-	    menu.add(0 , 1, 0 , "Exit")
-	    .setAlphabeticShortcut('S');
+	    menu.add(0 , 0, 0 , "Parameter").setAlphabeticShortcut('S');
+	    menu.add(0 , 1, 0 , "Exit").setAlphabeticShortcut('S');
 	    return true;
 	  }
 
@@ -70,6 +81,111 @@ public class MontionDection extends Activity
 	  {
 	    switch (item.getItemId())
 	      {
+	        case 0:
+	        	camera.stopPreview();
+	            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+	            alert.setTitle("change Parameter");
+	            alert.setMessage("");
+	            ScrollView sv = new ScrollView(this);
+	            LinearLayout ll = new LinearLayout(this);
+	            ll.setOrientation(LinearLayout.VERTICAL);
+	            sv.addView(ll);
+
+	            float value = (float)RgbMD.mPixelThreshold / (float)255;
+	            Log.i(TAG, Integer.toString(RgbMD.mPixelThreshold) + "," + Float.valueOf(value));
+	            trgbthr = new TextView(this);
+	            trgbthr.setText("Pixel Threshold: ");
+	            ll.addView(trgbthr);
+	            rgbthrbar = new SeekBar(this);
+	            rgbthrbar.setMax(100);
+	            rgbthrbar.setProgress((int) (value * 100));
+	            rgbthrbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+	            	   @Override
+	            	   public void onProgressChanged(SeekBar seekBar, int progress,
+	            	     boolean fromUser) {
+	            	    // TODO Auto-generated method stub
+	            		   float value = Float.valueOf(progress)/100;
+	            		   trgbthrres.setText(Float.toString(value));
+	            	   }
+
+	            	   @Override
+	            	   public void onStartTrackingTouch(SeekBar seekBar) {
+	            	    // TODO Auto-generated method stub
+	            	   }
+
+	            	   @Override
+	            	   public void onStopTrackingTouch(SeekBar seekBar) {
+	            	    // TODO Auto-generated method stub
+	            	   }
+	           });
+	            	               
+	            ll.addView(rgbthrbar);
+
+	            trgbthrres = new TextView(this);
+	            trgbthrres.setText(Float.toString(value));
+	            ll.addView(trgbthrres);
+
+	            
+	            float tvalue = (float) RgbMD.mThreshold / (float) (h*w);
+
+	            tnumthr = new TextView(this);
+	            tnumthr.setText("Number Pixels: ");
+	            ll.addView(tnumthr);
+	            numthrbar = new SeekBar(this);
+	            numthrbar.setMax(100);
+	            numthrbar.setProgress((int) ( tvalue * 100));
+	            numthrbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+
+	            	   @Override
+	            	   public void onProgressChanged(SeekBar seekBar, int progress,
+	            	     boolean fromUser) {
+	            	    // TODO Auto-generated method stub
+	            		   float value = Float.valueOf(progress)/100;
+	            		   tnumthrres.setText(Float.toString(value));
+	            	   }
+
+	            	   @Override
+	            	   public void onStartTrackingTouch(SeekBar seekBar) {
+	            	    // TODO Auto-generated method stub
+	            	   }
+
+	            	   @Override
+	            	   public void onStopTrackingTouch(SeekBar seekBar) {
+	            	    // TODO Auto-generated method stub
+	            	   }
+	           });
+	            
+	            ll.addView(numthrbar);
+
+	            tnumthrres = new TextView(this);
+	            tnumthrres.setText(Float.toString(tvalue));
+	            ll.addView(tnumthrres);
+	            
+	            // Set an EditText view to get user input 
+	            alert.setView(sv);
+	            
+	            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) 
+	            {
+	            	RgbMD.mPixelThreshold =  (int) (Float.valueOf(trgbthrres.getText().toString()) * 255);    
+	            	RgbMD.mThreshold = (int) (h * w * Float.valueOf(tnumthrres.getText().toString()));    
+					camera.startPreview();
+	            }
+	            });
+	          
+	            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int whichButton) {
+	                  // Canceled.
+	                }
+	              });
+	          
+	              alert.show();      
+	        	  
+	        		
+	        	
+		          return true;
 	        case 1:
 	          //locationManager.removeUpdates(locationListener);
 	          android.os.Process.killProcess(android.os.Process.myPid());
@@ -107,6 +223,9 @@ public class MontionDection extends Activity
 			Camera.Size size = cam.getParameters().getPreviewSize();
 			if (size == null) return;
 			
+			w = size.width;
+			h = size.height;
+			
 			if (stop == 1)
 			{
 				camera.stopPreview();
@@ -128,6 +247,7 @@ public class MontionDection extends Activity
 		public void surfaceCreated(SurfaceHolder holder) {
 			try {
 				camera.setPreviewDisplay(previewHolder);
+				//callback
 				camera.setPreviewCallback(previewCallback);
 			} catch (Throwable t) {
 				Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
@@ -140,6 +260,7 @@ public class MontionDection extends Activity
 		{
 			Camera.Parameters parameters = camera.getParameters();
 			Camera.Size size = getBestPreviewSize(width, height, parameters);
+			
 			if (size!=null) {
 				parameters.setPreviewSize(size.width, size.height);
 				Log.d(TAG, "Using width=" + size.width + " height=" + size.height);
