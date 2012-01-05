@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -52,7 +53,7 @@ public class MontionDection extends Activity
 	public static int stop=0;
 
 	private TextView trgbthr, tnumthr;
-	private SeekBar rgbthrbar, numthrbar;
+	private EditText rgbthrbar, numthrbar;
 	private TextView trgbthrres, tnumthrres;
 	public int h, w;
 	
@@ -76,9 +77,18 @@ public class MontionDection extends Activity
 	    
 	    menu.add(0 , 0, 0 , "Parameter").setAlphabeticShortcut('S');
 	    menu.add(0 , 1, 0 , "Exit").setAlphabeticShortcut('S');
+	    camera.stopPreview();
 	    return true;
 	  }
 
+	  public boolean onPrepareOptionsMenu()
+	  {
+		camera.startPreview();
+		  
+		return true;
+		  
+	  }
+	
 	  @Override
 	  public boolean onOptionsItemSelected(MenuItem item)
 	  {
@@ -100,30 +110,9 @@ public class MontionDection extends Activity
 	            trgbthr = new TextView(this);
 	            trgbthr.setText("Pixel Threshold: ");
 	            ll.addView(trgbthr);
-	            rgbthrbar = new SeekBar(this);
-	            rgbthrbar.setMax(100);
-	            rgbthrbar.setProgress((int) (value * 100));
-	            rgbthrbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+	            rgbthrbar = new EditText(this);
 
-	            	   @Override
-	            	   public void onProgressChanged(SeekBar seekBar, int progress,
-	            	     boolean fromUser) {
-	            	    // TODO Auto-generated method stub
-	            		   float value = Float.valueOf(progress)/100;
-	            		   trgbthrres.setText(Float.toString(value));
-	            	   }
-
-	            	   @Override
-	            	   public void onStartTrackingTouch(SeekBar seekBar) {
-	            	    // TODO Auto-generated method stub
-	            	   }
-
-	            	   @Override
-	            	   public void onStopTrackingTouch(SeekBar seekBar) {
-	            	    // TODO Auto-generated method stub
-	            	   }
-	           });
-	            	               
+	            rgbthrbar.setText(Float.toString(value));            
 	            ll.addView(rgbthrbar);
 
 	            trgbthrres = new TextView(this);
@@ -135,30 +124,9 @@ public class MontionDection extends Activity
 	            tnumthr = new TextView(this);
 	            tnumthr.setText("Number Pixels: ");
 	            ll.addView(tnumthr);
-	            numthrbar = new SeekBar(this);
-	            numthrbar.setMax(100);
-	            numthrbar.setProgress((int) ( tvalue * 100));
-	            numthrbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+	            numthrbar = new EditText(this);
+	            numthrbar.setText(Float.toString(tvalue));
 
-	            	   @Override
-	            	   public void onProgressChanged(SeekBar seekBar, int progress,
-	            	     boolean fromUser) {
-	            	    // TODO Auto-generated method stub
-	            		   float value = Float.valueOf(progress)/100;
-	            		   tnumthrres.setText(Float.toString(value));
-	            	   }
-
-	            	   @Override
-	            	   public void onStartTrackingTouch(SeekBar seekBar) {
-	            	    // TODO Auto-generated method stub
-	            	   }
-
-	            	   @Override
-	            	   public void onStopTrackingTouch(SeekBar seekBar) {
-	            	    // TODO Auto-generated method stub
-	            	   }
-	           });
-	            
 	            ll.addView(numthrbar);
 
 	            tnumthrres = new TextView(this);
@@ -382,14 +350,22 @@ public class MontionDection extends Activity
 		
 		private void save(String name, Bitmap bitmap) 
 		{
+			File wallpaperDirectory = new File(Environment.getExternalStorageDirectory() + "/pic/");
+			// have the object build the directory structure, if needed.
+			wallpaperDirectory.mkdirs();
+
    
-			File photo=new File(Environment.getExternalStorageDirectory(), name+".jpg");
+			File photo=new File(Environment.getExternalStorageDirectory() + "/pic/", name+".jpg");
 			if (photo.exists()) photo.delete();
 
 			try {
 				FileOutputStream fos=new FileOutputStream(photo.getPath());
 				bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 				fos.close();
+				
+				if(bitmap.isRecycled()==false) 
+					bitmap.recycle();      
+
 			} catch (java.io.IOException e) {
 				Log.e("PictureDemo", "Exception in photoCallback", e);
 			}

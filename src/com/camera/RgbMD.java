@@ -9,7 +9,7 @@ public class RgbMD
 
 	//Specific settings
 	public static int mPixelThreshold = 25; //Difference in pixel (RGB)
-	public static int mThreshold = 1000; //Number of different pixels (RGB)
+	public static int mThreshold = 6000; //Number of different pixels (RGB)
 
 	private static int[] mPrevious = null;
 	private static int mPreviousWidth = 0;
@@ -52,20 +52,35 @@ public class RgbMD
 			{
 				if (j < Width_limit || j > width - Width_limit) continue;
 				
-				int pix = (0xff & ((int)first[ij]));
-				int otherPix = (0xff & ((int)mPrevious[ij]));
-
+				int rpix = (0xff & ((int)first[ij]));
+				int rotherPix = (0xff & ((int)mPrevious[ij]));
+				int gpix = (0xff00 & ((int)first[ij]));
+				int gotherPix = (0xff00 & ((int)mPrevious[ij]));
+				int bpix = (0xff0000 & ((int)first[ij]));
+				int botherPix = (0xff0000 & ((int)mPrevious[ij]));
+				
 				//Catch any pixels that are out of range
-				if (pix < 0) pix = 0;
-				if (pix > 255) pix = 255;
-				if (otherPix < 0) otherPix = 0;
-				if (otherPix > 255) otherPix = 255;
-
-				if (Math.abs(pix - otherPix) >= mPixelThreshold) 
+				if (rpix < 0) rpix = 0;
+				if (rpix > 255) rpix = 255;
+				if (rotherPix < 0) rotherPix = 0;
+				if (rotherPix > 255) rotherPix = 255;
+				//Catch any pixels that are out of range
+				if (gpix < 0) gpix = 0;
+				if (gpix > 255) gpix = 255;
+				if (gotherPix < 0) gotherPix = 0;
+				if (gotherPix > 255) gotherPix = 255;
+				//Catch any pixels that are out of range
+				if (bpix < 0) bpix = 0;
+				if (bpix > 255) bpix = 255;
+				if (botherPix < 0) botherPix = 0;
+				if (botherPix > 255) botherPix = 255;				
+				
+				
+				if (Math.abs(rpix - rotherPix) + Math.abs(gpix - gotherPix) + Math.abs(bpix - botherPix) >= mPixelThreshold) 
 				{
 					totDifferentPixels++;
 					//Paint different pixel red
-					first[ij] = Color.RED;
+					//first[ij] = Color.RED;
 				}
 			}
 		}
