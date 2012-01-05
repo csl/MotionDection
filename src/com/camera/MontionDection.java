@@ -8,6 +8,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.os.AsyncTask;
@@ -32,7 +36,7 @@ public class MontionDection extends Activity
 {
 	private static final String TAG = "MontionDection";
 	
-	static int DELAY_TAKEPICTURE = 10000;
+	static int DELAY_TAKEPICTURE = 3500;
 
 	//camera use
 	private static SurfaceView preview = null;
@@ -66,7 +70,6 @@ public class MontionDection extends Activity
 		//using rgb
 		detector = new RgbMD();
 	}
-	
 	public boolean onCreateOptionsMenu(Menu menu)
 	  {
 	    super.onCreateOptionsMenu(menu);
@@ -127,7 +130,6 @@ public class MontionDection extends Activity
 	            trgbthrres.setText(Float.toString(value));
 	            ll.addView(trgbthrres);
 
-	            
 	            float tvalue = (float) RgbMD.mThreshold / (float) (h*w);
 
 	            tnumthr = new TextView(this);
@@ -182,7 +184,6 @@ public class MontionDection extends Activity
 	              });
 	          
 	              alert.show();      
-	        	
 		          return true;
 	        case 1:
 	          //locationManager.removeUpdates(locationListener);
@@ -247,6 +248,7 @@ public class MontionDection extends Activity
 				camera.setPreviewDisplay(previewHolder);
 				//callback
 				camera.setPreviewCallback(previewCallback);
+				//redraw
 			} catch (Throwable t) {
 				Log.e("PreviewDemo-surfaceCallback", "Exception in setPreviewDisplay()", t);
 			}
@@ -294,7 +296,7 @@ public class MontionDection extends Activity
 
 		return result;
 	}
-
+	
 	//thread use
 	private static final class DetectionThread extends Thread 
 	{

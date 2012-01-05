@@ -8,12 +8,17 @@ public class RgbMD
 	private static final String TAG = "RgbMD";
 
 	//Specific settings
-	public static int mPixelThreshold = 30; //Difference in pixel (RGB)
-	public static int mThreshold = 5000; //Number of different pixels (RGB)
+	public static int mPixelThreshold = 25; //Difference in pixel (RGB)
+	public static int mThreshold = 1000; //Number of different pixels (RGB)
 
 	private static int[] mPrevious = null;
 	private static int mPreviousWidth = 0;
 	private static int mPreviousHeight = 0;
+	
+	private static int Range_rate = 5;
+
+	private static int Width_limit = 0;
+	private static int height_limit = 0;
 
 	/**
 	 * {@inheritDoc}
@@ -33,9 +38,20 @@ public class RgbMD
 
 		int totDifferentPixels = 0;
 		int size = height * width;
+		
+		Width_limit = width / Range_rate; 
+		height_limit = height / Range_rate;
+
+		Log.i(TAG, "limit: " + Width_limit + ", " + height_limit);
 
 		for (int i = 0, ij=0; i < height; i++) {
-			for (int j = 0; j < width; j++, ij++) {
+			
+			if (i < height_limit || i > height - height_limit) continue;
+			
+			for (int j = 0; j < width; j++, ij++) 
+			{
+				if (j < Width_limit || j > width - Width_limit) continue;
+				
 				int pix = (0xff & ((int)first[ij]));
 				int otherPix = (0xff & ((int)mPrevious[ij]));
 
