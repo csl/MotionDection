@@ -111,13 +111,8 @@ public class MontionDection extends Activity
 	            trgbthr.setText("Pixel Threshold: ");
 	            ll.addView(trgbthr);
 	            rgbthrbar = new EditText(this);
-
 	            rgbthrbar.setText(Float.toString(value));            
 	            ll.addView(rgbthrbar);
-
-	            trgbthrres = new TextView(this);
-	            trgbthrres.setText(Float.toString(value));
-	            ll.addView(trgbthrres);
 
 	            float tvalue = (float) RgbMD.mThreshold / (float) (h*w);
 
@@ -128,10 +123,6 @@ public class MontionDection extends Activity
 	            numthrbar.setText(Float.toString(tvalue));
 
 	            ll.addView(numthrbar);
-
-	            tnumthrres = new TextView(this);
-	            tnumthrres.setText(Float.toString(tvalue));
-	            ll.addView(tnumthrres);
 	            
 	            // Set an EditText view to get user input 
 	            alert.setView(sv);
@@ -139,8 +130,9 @@ public class MontionDection extends Activity
 	            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) 
 	            {
-	            	RgbMD.mPixelThreshold =  (int) (Float.valueOf(trgbthrres.getText().toString()) * 255);    
-	            	RgbMD.mThreshold = (int) (h * w * Float.valueOf(tnumthrres.getText().toString()));    
+	            	RgbMD.mPixelThreshold =  (int) (Float.valueOf(rgbthrbar.getText().toString()) * 255);    
+	            	RgbMD.mThreshold = (int) (h * w * Float.valueOf(numthrbar.getText().toString()));    
+	            	
 					camera.startPreview();
 	            }
 	            });
